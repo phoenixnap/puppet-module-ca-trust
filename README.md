@@ -17,7 +17,7 @@
 
 Manage configuration of the recent /etc/pki/ca-trust system.
 
-## Module Description < a name="descr" /> ##
+## Module Description <a name="descr" /> ##
 
 The ca\_trust module is for applying configuration to the /etc/pki/ca-trust system.  
 Trusted certificates can be imported into the trusted bundles.
