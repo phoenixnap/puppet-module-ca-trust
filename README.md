@@ -9,6 +9,7 @@
     + [Legacy PEM Anchors](#pem-anchors)
 + [Reference](#reference)
 + [Development](#dev)
++ [TODO](#todo)
 
 ---
 
@@ -97,3 +98,8 @@ ca_trust::pem::anchor { 'resource title':
 ## Development <a name="dev"/> ##
 
 Coming soon.
+
+## TODO <a name="todo"/> ##
+
++ Right now, only legacy PEM anchors are supported. Support for other
+types of anchors, as well as BEGIN TRUSTED certs must be added.
