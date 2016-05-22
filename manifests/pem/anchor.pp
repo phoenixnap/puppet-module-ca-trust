@@ -3,7 +3,7 @@
 ## 
 define ca_trust::pem::anchor (
   Optional[String] $filename = undef,
-  String $content = undef,
+  String $source = undef,
   Enum['present','absent'] $ensure = 'present',
 ) {
 
@@ -36,7 +36,7 @@ define ca_trust::pem::anchor (
       owner   => root,
       group   => root,
       mode    => '0640',
-      content => $content,
+      source  => $source,
       notify  => Class['ca_trust'],
     }
   }
