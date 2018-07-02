@@ -35,7 +35,7 @@ define ca_trust::pem::anchor (
       ensure  => $_ensure,
       owner   => root,
       group   => root,
-      mode    => '0640',
+      mode    => '0644',
       source  => $source,
       notify  => Class['ca_trust'],
     }
