@@ -19,7 +19,6 @@ before_script:
 
 syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop-Ruby 2.4.4-Puppet ~> 5.5:
   stage: syntax
-  when: manual
   tags:
     - docker
   except:
@@ -32,7 +31,7 @@ syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore c
 
 parallel_spec-Ruby 2.4.4-Puppet ~> 5.5:
   stage: unit
-  when: manual
+  when: on_success
   except:
     - tags
   image: ruby:2.4.4
@@ -45,8 +44,7 @@ parallel_spec-Ruby 2.4.4-Puppet ~> 5.5:
 
 acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   stage: acceptance
-  when: manual
-#  when: on_success
+  when: on_success
   image: centos:7
   except: 
     - tags
