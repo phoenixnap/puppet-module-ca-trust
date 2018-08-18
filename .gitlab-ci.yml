@@ -46,7 +46,7 @@ parallel_spec-Ruby 2.4.4-Puppet ~> 5.5:
 acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   stage: acceptance
   when: manual
-  when: on_success
+#  when: on_success
   image: centos:7
   except: 
     - tags
