@@ -1,43 +1,34 @@
 ##
 # Installs a legacy PEM format anchor, and updates the trusted bundle.
+#
+# @PARAM $source   - The source of the PEM file. I ensure is not 'present', this is required, 
+#                    otherwise it's optional as it's ignored. (Default: undef).
+# @PARAM $ensure   - Generic puppet ensurable. (Default: present)
+# @PARAM $filename - The name of the file the source will be installed as. This is the filename
+#                    only, not any sort of relative or absolute path. The filename must end in
+#                    .pem or .crt.  (Default: $namevar)
 ## 
 define ca_trust::pem::anchor (
-  Optional[String] $filename = undef,
-  String $source = undef,
-  Enum['present','absent'] $ensure = 'present',
+  Optional[String]         $source   = undef,
+  Enum['present','absent'] $ensure   = 'present',
+  Pattern[/\A[^\\\/]+\z/]  $filename = $title,
 ) {
 
-  if ! defined(Class['ca_trust']) {
-    fail("Class['ca_trust'] must be loaded before ca_trust::anchor can be declared.")
+  include ca_trust
+
+  if $ensure != 'present' {
+    $notify = [Exec[$::ca_trust::reset_name]]
+  } else {
+    unless $source { fail('Source is required if ensure is \'present\'') }
+    $notify = [Exec[$::ca_trust::refresh_name]]
   }
 
-  if ! $filename {
-    $_target_file = $title
-    $_target = "${ca_trust::anchordir}/${title}"
-  } else {
-    $_target_file = $filename
-    $_target = "${ca_trust::anchordir}/${filename}"
-  }
 
-  if $ensure == 'present' {
-    $_ensure = 'file'
-  } else {
-    $_ensure = $ensure
-  }
+  $install_path = [$::ca_trust::anchor_dir, $filename].join($::ca_trust::path_separator)
 
-  if defined(File[$_target]){
-    notify { "Target $_target exists.":
-      message => "Trust anchor File['${_target}'] is declared elsewhere. ca_trust will not manage."
-    }
-  } else {
-    # Parent directories should be made by package.
-    file { $_target :
-      ensure  => $_ensure,
-      owner   => root,
-      group   => root,
-      mode    => '0644',
-      source  => $source,
-      notify  => Class['ca_trust'],
-    }
+  file { "${install_path}.${::ca_trust::cert_suffix}":
+    ensure => $ensure,
+    source => $source,
+    notify => $notify,
   }
 }

@@ -1,0 +1,84 @@
+---
+stages:
+  - syntax
+  - unit
+  - acceptance
+  - build
+
+cache:
+  paths:
+    - vendor/bundle
+
+before_script:
+  - bundle -v
+  - rm Gemfile.lock || true
+  - gem update --system
+  - gem --version
+  - bundle -v
+  - bundle install --without system_tests --path vendor/bundle --jobs $(nproc)
+
+syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop-Ruby 2.4.4-Puppet ~> 5.5:
+  stage: syntax
+  tags:
+    - docker
+  image: ruby:2.4.4
+  script:
+    - bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
+  variables:
+    PUPPET_GEM_VERSION: '~> 5.5'
+
+parallel_spec-Ruby 2.4.4-Puppet ~> 5.5:
+  stage: unit
+  image: ruby:2.4.4
+  tags:
+    - docker
+  script:
+    - bundle exec rake parallel_spec
+  variables:
+    PUPPET_GEM_VERSION: '~> 5.5'
+
+acceptance-Ruby 2.4.4-Puppet ~> 5.5:
+  stage: acceptance
+  when: on_success
+  image: centos:7
+  only:
+      - /^master$/
+  tags:
+    - nested
+  before_script:
+    - yum install -y automake autoconf gcc gcc-g++ libffi-devel zlib-devel libxml2-devel openssl-devel docker ruby gpg which
+    - gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+    - curl -sSL https://get.rvm.io | bash -s stable
+    - usermod -a -G rvm root
+    - . /etc/profile.d/rvm.sh
+    - rvm install 2.4.4
+    - rvm use 2.4.4
+    - gem install bundle
+    - bundle -v
+    - rm Gemfile.lock || true
+    - gem update --system
+    - gem --version
+    - bundle -v
+    - bundle install --path vendor/bundle --jobs $(nproc)
+  script:
+    - bundle exec rake beaker:default
+  variables:
+    PUPPET_GEM_VERSION: '~> 5.5'
+
+build:
+  stage: build
+  tags:
+    - docker
+  image: ruby:2.4.4
+  only:
+    - tags
+  script:
+    - mkdir builds/
+    - bundle exec rake module:bump_to_version[${CI_COMMIT_TAG}]
+    - pkd build --target-dir=builds/
+  variables:
+    PUPPET_GEM_VERSION: '~> 5.5'
+  artifacts:
+    paths:
+      - builds/phoenixnap-ca_trust*
+
