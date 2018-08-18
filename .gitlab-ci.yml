@@ -95,4 +95,5 @@ build:
   variables:
     PUPPET_GEM_VERSION: '~> 5.5'
   artifacts:
+    paths:
       - builds/phoenixnap-ca_trust*
