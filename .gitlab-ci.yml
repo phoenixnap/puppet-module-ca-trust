@@ -48,7 +48,8 @@ acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   when: manual
   when: on_success
   image: centos:7
-  except: tags
+  except: 
+    - tags
   tags:
     - nested
   before_script:
