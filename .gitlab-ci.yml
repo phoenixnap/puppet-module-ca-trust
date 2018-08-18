@@ -81,14 +81,14 @@ build:
     - tags
   before_script:
     - DEBIAN_RELEASE="$(grep 'VERSION=' /etc/os-release | sed 's@.*\s(\(.*\))"@\1@g')"
-    - DOWNLOAD="$(mktemp)"
+    - DOWNLOAD="$(mktemp --suffix .deb)" && chmod 644 $DOWNLOAD
     - curl -k -sSL -o $DOWNLOAD "http://apt.puppetlabs.com/puppet-release-${DEBIAN_RELEASE}.deb"
-    - apt install $DOWNLOAD
+    - apt-get install $DOWNLOAD
     - apt-get update
-    - rm $DOWNLOAD
+    - rm -f $DOWNLOAD
   script:
     - PDK_VERSION=$(python -c "from json import load; f = open('metadata.json', 'r'); print load(f)['pdk-version']; f.close()")
-    - yum -y install pdk-${PDK_VERSION}
+    - apt-get install --force-yes -y pdk-${PDK_VERSION}.*
     - mkdir builds/
     - bundle exec rake module:bump_to_version[${CI_COMMIT_TAG}]
     - pdk build --target-dir=builds/
