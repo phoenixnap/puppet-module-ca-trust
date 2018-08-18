@@ -19,8 +19,11 @@ before_script:
 
 syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop-Ruby 2.4.4-Puppet ~> 5.5:
   stage: syntax
+  when: manual
   tags:
     - docker
+  except:
+    - tags
   image: ruby:2.4.4
   script:
     - bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
@@ -29,6 +32,9 @@ syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore c
 
 parallel_spec-Ruby 2.4.4-Puppet ~> 5.5:
   stage: unit
+  when: manual
+  except:
+    - tags
   image: ruby:2.4.4
   tags:
     - docker
@@ -39,10 +45,10 @@ parallel_spec-Ruby 2.4.4-Puppet ~> 5.5:
 
 acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   stage: acceptance
+  when: manual
   when: on_success
   image: centos:7
-  only:
-      - /^master$/
+  except: tags
   tags:
     - nested
   before_script:
@@ -72,7 +78,16 @@ build:
   image: ruby:2.4.4
   only:
     - tags
+  before_script:
+    - DEBIAN_RELEASE="$(grep 'VERSION=' /etc/os-release | sed 's@.*\s(\(.*\))"@\1@g')"
+    - DOWNLOAD="$(mktemp)"
+    - curl -k -sSL -o $DOWNLOAD "http://apt.puppetlabs.com/puppet-release-${DEBIAN_RELEASE}.deb"
+    - apt install $DOWNLOAD
+    - apt-get update
+    - rm $DOWNLOAD
   script:
+    - PDK_VERSION=$(python -c "from json import load; f = open('metadata.json', 'r'); print load(f)['pdk-version']; f.close()")
+    - yum -y install pdk-${PDK_VERSION}
     - mkdir builds/
     - bundle exec rake module:bump_to_version[${CI_COMMIT_TAG}]
     - pdk build --target-dir=builds/
