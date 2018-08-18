@@ -5,8 +5,10 @@
 ##
 class ca_trust::install {
 
-  package { $ca_trust::package_name :
-    ensure => $ca_trust::package_version,
+  if $ca_trust::manage_pkg {
+    package { $ca_trust::package_name :
+      ensure => $ca_trust::package_version,
+    }
   }
 
 }

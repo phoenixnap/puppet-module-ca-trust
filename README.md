@@ -3,103 +3,156 @@
 ### Table of Contents ###
 
 + [Overview](#overview)
+    + [Supported Platforms](#support)
 + [Module Description](#descr)
 + [Setup](#setup)
 + [Usage](#usage)
     + [Legacy PEM Anchors](#pem-anchors)
-+ [Reference](#reference)
+    + [Anchors from Hiera](#hiera-config)
++ [Facts](#facts)
 + [Development](#dev)
 + [TODO](#todo)
++ [Changes](CHANGELOG.md)
 
 ---
 
 ## Overview <a name="overview" /> ##
 
-Manage configuration of the recent /etc/pki/ca-trust system.
+Manage CA Trust anchors within the ca-certificates framework.
+
+### Supported Platforms <a name="supported"/> ###
+
++ RedHat & Derivatives >= 6.x
++ Debian & Derivatives >= 8.x
++ Fedora >= 25
 
 ## Module Description <a name="descr" /> ##
 
-The ca\_trust module is for applying configuration to the /etc/pki/ca-trust system.  
-Trusted certificates can be imported into the trusted bundles.
+The ca\_trust module is for managing additions to the root CA bundle supplied by OS vendors. Used by applications
+to establish trust, the root CA bundle is usually shipped containing only 3rd party or commercial CA certificates.
+Administrators are expected to add their own internal or self signed certificates to the OS vendor supplied bundles
+as needed.
+
+The module currently supports adding PEM encoded CA anchors.
 
 ## Setup <a name="setup" /> ##
 
-Installing the module provides everything necessary to start using the system, though
-Hiera and Puppet file server configurations make things simpler.
+To prepare supported operating systems to receive new trusted CA anchors.
 
-## Usage <a name="usage"/> ##
+`include ca_trust`
 
-Set up the basic requirements of ca\_trust.
-
-```
-import ::ca_trust 
-```
-
-In most cases, the ca\_trust packages are provided with the 'base' or 'minimal' install
-of the operating system.  If your OS vendor does not include this system by default, 
-the module can manage that for you.
-
-```
-class { '::ca_trust' :
-  manage_pkg       => true,
-  package_name     => 'ca-certificates',
-  package_version  => 'latest',
-}
-```
-
-If your operating system's default paths aren't listed in `ca_trust::params`, or if you have
-the ca-trust system configured to use a default directory.
+To do the same, but include non-standard options.
 
 ```
 class { '::ca_trust':
-  basedir => '/my/custom/location'
+  cert_dir => '/some/other/directory',
 }
+```
+
+See [Reference](REFERENCE.md#ca_trust) for all options supported by the main class.
+
+## Usage <a name="usage"/> ##
+
+On supported operating systems, the [Setup](#setup) process is entirely unnecessary, simply begin by
+declaring any [ca\_trust::pem::anchors](#pem-anchors) necessary.
+
+If things need to be customized, then the `ca_trust` main class can be specified explicitly, like it is in the 
+[Setup](#setup) section.  Alternatively, the `ca_trust` main class may be customized via hiera.
+
+```
+---
+# Hiera YAML file.
+# Use some other command to update root bundle certificates instead of
+# OS default.
+ca_trust::update_cmd: /some/other/binary
+```
+
+```
+# Puppet profile.
+
+include ca_trust
 ```
 
 ### Legacy PEM Anchors <a name="pem-anchors"/> ###
 
-Once the ca\_trust class is loaded & configured, PEM anchors may be appended to the system's
-CA bundle.
+To install new CA certificates into the operating system's trusted bundle, use the `ca_trust::pem::anchor` type.  When 
+specifying anchors, do not specify the filename extension (.crt, .pem, etc.).  Some platforms are picky about the extension
+used, so the module will choose the appropriate default for the platform.  For instance, Debian expects the certificates to end
+in .crt.
 
 ```
-include ::ca_trust
+ca_trust::pem::anchor { 'self-signed':
+  source => 'puppet:///modules/profile/node-one/self-signed-cert.pem',
+}
 
-ca_trust::pem::anchor { 'my-local-ca.pem':
-  ensure => 'present',
-  content => 'puppet:///modules/profile/local-ca.pem',
+ca_trust::pem::anchor { 'expired-cert':
+  ensure => 'absent',
+  source => 'puppet:///modules/profile/node-two/old-certificate.pem',
+}
+
+ca_trust::pem::anchor { 'My Company\'s Internal CA':
+  source   => 'puppet:///modules/profile/organization-ca.pem',
+  filename => 'org-ca',
 }
 ```
 
-### Reference <a name="reference"/> ###
+For convienience you may also specify any anchors you'd like when you declare the `ca_trust` class, if you 
+are doing so explicitly.
 
 ```
-class { 'ca_trust':
-  basedir         =>  # The location of the ca-trust tree. Default '/etc/pki/ca-trust'
-  update_cmd      =>  # The shell command to update trusted bundles.
-                      # Default: '/usr/bin/update-ca-trust'
-  package_name    =>  # The name of the package which provides ca-trust.
-                      #  Default: ca-certificates
-  manage_pkg      =>  # A boolean flag indicating whether or not the installation of
-                      # the ca-certificates package should be managed.
-  package_version =>  # The version of the package to install, 'latest' or 'installed.
-                      # Default: 'installed'
-``` 
-
-```
-ca_trust::pem::anchor { 'resource title':
-  filename =>  # (namevar) The name of the target file. Not a path, just a file.
-  content  =>  # Same as built-in File content.
-  ensure   =>  # One of 'present', 'absent'.  If 'present', file will be installed
-               # and merged with OS ca-bundle.  If 'absent', file will be removed
-               # from OS ca-bundle.
+class { '::ca_trust':
+  update_cmd => 'my-custom-command.sh',
+  anchors    => {
+    'org-ca' => {
+      'source' => 'puppet:///modules/profile/my-company-ca.pem',
+    },
+    'expired-ca' => {
+      'ensure' => 'absent',
+    },
+  },
 }
 ```
+
+### Anchors from Hiera ###
+
+The class `ca_trust::pem::anchors` is included for hiera convienience.   With it, you may pass in a hash 
+of `ca_trust::pem::anchor` resources to manage.
+
+```
+---
+# Node's hiera yaml.
+ca\_trust::pem::anchors::resources:
+  org-ca: 
+    source: puppet:///modules/profile/my-company-ca.pem
+  expired-ca:
+    ensure: absent
+```
+
+## Facts <a name="facts"/> ##
+
+The following facts are exposed.
+
+`trust_bundle` - On supported operating systems this fact resolves to the path of the system-wide trusted CA bundle.
 
 ## Development <a name="dev"/> ##
 
-Coming soon.
+This module has been converted to use the [Puppet Development Kit](https://puppet.com/docs/pdk/1.x/pdk.html).  
+
+### Source Validation ###
+`pdk validate`
+
+### Unit Testing ###
+`pdk test unit`
+
+For better output, or to debug a specific spec, the old standby `bundle exec rake spec_prep` and `bundle exec rspec <filename>` still
+functions flawlessly.  Be sure to run `bundle exec rake spec_clean` before going back to `pdk test unit` though.
 
 ## TODO <a name="todo"/> ##
 
-+ Right now, only legacy PEM anchors are supported. Support for other
-types of anchors, as well as BEGIN TRUSTED certs must be added.
++ Right now, only PEM encoded certificate anchors are supported. Support for other types of anchors, as well as BEGIN TRUSTED certs should be added.
++ Add a task which allow administrators to view the contents of their system CA bundles.
++ Eventually support should be added for Windows platforms, to install new CA's into the system or user Certificate databases.
+
+## Changes ##
+
+See the [change log](CHANGELOG.md).
