@@ -94,4 +94,5 @@ build:
     - pdk build --target-dir=builds/
   variables:
     PUPPET_GEM_VERSION: '~> 5.5'
+  artifacts:
       - builds/phoenixnap-ca_trust*
