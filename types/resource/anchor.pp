@@ -4,6 +4,7 @@
 
 type Ca_trust::Resource::Anchor = Struct[{
   Optional[ensure]   => Enum['present','absent'],
-  source             => String[1],
-  Optional[filename] => Pattern[/\A[^\\\/]+\z/],
+  Optional[content]  => String[1],
+  Optional[source]   => String[1],
+  Optional[filename] => Pattern[/\A[^\\\/]+[^(\.pem|\.crt)]\z/],
 }]

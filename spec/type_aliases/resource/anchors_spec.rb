@@ -5,10 +5,10 @@ if Puppet::Util::Package.versioncmp(Puppet.version, '4.5.0') >= 0
     context 'on valid configurations' do
       [
         {
-          'org-ca.pem' => {
+          'org-ca' => {
             'source' => 'puppet:///modules/profile/my-internal-ca.pem',
           },
-          'another.pem' => {
+          'another' => {
             'ensure' => 'present',
             'source' => 'puppet:///modules/profile/my-internal-ca.pem',
           },
@@ -16,6 +16,13 @@ if Puppet::Util::Package.versioncmp(Puppet.version, '4.5.0') >= 0
             'ensure'   => 'absent',
             'source'   => 'puppet:///modules/profile/my-internal-ca.pem',
             'filename' => 'org-ca',
+          },
+          'old-ca' => {
+            'ensure' => 'absent',
+          },
+          'another-old-ca' => {
+            'ensure' => 'absent',
+            'filename' => 'my-old-ca',
           },
         },
       ].each do |value|
@@ -27,14 +34,6 @@ if Puppet::Util::Package.versioncmp(Puppet.version, '4.5.0') >= 0
 
     context 'on invalid configurations' do
       [
-        {
-          'org-ca' => {},
-        },
-        {
-          'company-ca.pem' => {
-            'ensure' => 'present',
-          },
-        },
         {
           'foo' => {
             'ensure' => 'foo',

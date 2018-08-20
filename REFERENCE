@@ -36,12 +36,12 @@ Customize the ca\_trust system.
 
 ```
 class { '::ca_trust':
-  cert_dir        => '/some/nonstandard/dir',
+  cert_dir        => '/usr/share/pki/ca-trust-source',
   update_cmd      => 'custom_updater.sh',
   package_name    => 'customized-ca-certs',
   package_version => '1.0.0',
   anchors         => { 
-    'my-ca.pem' => {
+    'my-ca' => {
       source => 'puppet:///profile/self-signed.crt',
     },
   },
@@ -56,7 +56,7 @@ Data Type: `Stdlib::Absolutepath`
 Description: The directory which is designed to contain loose certificate files. This module does not create this, or parent directories.  It assumes the directories were provided by the operating system package.
 
 Default Value:  OS Dependent
-* RedHat & Derivatives: /etc/pki/ca-trust/source/anchors
+* RedHat & Derivatives: /usr/share/pki/ca-trust-source
 * Debian & Derivatives: /usr/local/share/ca-certificates
 
 `update_cmd`
@@ -110,16 +110,25 @@ Default Value: `{}`
 Create multiple `ca_trust::pem::anchor` resources with a hash.
 
 ```
+$cert_data = @(EOT)
+----- BEGIN CERTIFICATE -----
+... certificate data ...
+----- END CERTIFICATE -----
+| EOT
+
 $anchors = {
-  'org-ca.pem' => {
+  'org-ca' => {
     'source' => 'puppet:///modules/profile/company-ca.pem',
   },
-  'self-signed.crt' => {
+  'self-signed' => {
     'source' => 'puppet:///modules/profile/node_one/cert.crt',
   },
-  'expired-ca.pem' => {
+  'expired-ca' => {
     'ensure' => 'absent',
   },
+  'another-ca' => {
+    'content' => $cert_data,
+  }
 }
 
 class { '::ca_trust::pem::anchors':
@@ -135,12 +144,17 @@ The main purpose of this class is for hiera convienience.
 ---
 # In the hiera YAML.
 ca_trust::pem::anchors::resources:
-  org-ca.pem:
+  org-ca:
     source: puppet:///modules/profile/company-ca.pem
-  self-signed.crt:
+  self-signed:
     source: puppet:///modules/profile/node_one/cert.crt
-  expired-ca.pem:
+  expired-ca:
     ensure: absent
+  another-ca:
+    content: >
+      ----- BEGIN CERTIFICATE -----
+      .... data here .....
+      ----- END CERTIFICATE -----
 ```
 
 ```
@@ -164,11 +178,24 @@ Default Value: `{}`
 #### Example ####
 
 ```
-ca_trust::pem::anchor { 'ca-cert.pem':
+ca_trust::pem::anchor { 'ca-cert':
   ensure   => 'present',
   source   => 'puppet:///modules/profile/ca-cert.pem',
-  filename => 'ca-cert.pem'
+  filename => 'ca-cert'
 }
+
+$cert_data = @(EOT)
+----- BEGIN CERTIFICATE -----
+... cert data ...
+----- END CERTIFICATE -----
+| EOT
+
+ca_trust::pem::anchor { 'ca-cert-from-content':
+  ensure  => 'present',
+  content => $cert_data,
+}
+
+@
 ```
 
 #### Parameters ####
@@ -185,9 +212,18 @@ Default Value: `present`
 
 Data Type: `String`
 
-Description: The location from which the specified anchor will be downloaded.  See [Puppet File Resource: source](https://puppet.com/docs/puppet/5.5/types/package.html) parameter documentation for more details.
+Description: The location from which the specified anchor will be downloaded.  See [Puppet File Resource: source](https://puppet.com/docs/puppet/5.5/types/file.html#file-attribute-source) parameter documentation for more details.   One of content or source must be specified if `ensure` is `present`.  If both source and content are defined, content takes precedence.
 
 Default Value: None, undef.
+
+`content`
+Data Type: `String`
+
+Description: The contents of the certificate to be written to the file.  One of source or content must be specified if `ensure` is `present`.  If both are specified, content takes precedence.  See [Puppet File Resource: content](https://puppet.com/docs/puppet/5.5/types/file.html#file-attribute-content) for more details.  
+
+Default Value: None, undef
+
+Description
 
 `filename`
 Data Type: `Pattern[/\A[^\\\/]+\z/]`
@@ -206,7 +242,7 @@ Default Value: (namevar)
 type Ca_trust::Resource::Anchor = Struct[{
   Optional[ensure]   => Enum['present','absent'],
   source             => String[1],
-  Optional[filename] => Pattern[/\A[^\\\/]+\z/],
+  Optional[filename] => Pattern[/\A[^\\\/]+[^(\.pem|\.crt)]\z],
 }]
 ```
 
@@ -241,10 +277,10 @@ type Ca_trust::Resource::Anchors = Hash[String[1], Ca_trust::Resource::Anchor]
 
 ```
 { 
-  'org-ca.pem' => {
+  'org-ca' => {
     'source' => 'puppet:///modules/profile/my-internal-ca.pem',
   },
-  'another.pem' => {
+  'another' => {
     'ensure' => 'present',
     'source' => 'puppet:///modules/profile/my-internal-ca.pem',
   },
