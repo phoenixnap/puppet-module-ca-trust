@@ -12,7 +12,7 @@
 + [Facts](#facts)
 + [Development](#dev)
 + [TODO](#todo)
-+ [Changes](CHANGELOG.md)
++ [Changes](CHANGELOG)
 
 ---
 
@@ -49,7 +49,7 @@ class { '::ca_trust':
 }
 ```
 
-See [Reference](REFERENCE.md#ca_trust) for all options supported by the main class.
+See [Reference](REFERENCE#ca_trust) for all options supported by the main class.
 
 ## Usage <a name="usage"/> ##
 
@@ -87,12 +87,21 @@ ca_trust::pem::anchor { 'self-signed':
 
 ca_trust::pem::anchor { 'expired-cert':
   ensure => 'absent',
-  source => 'puppet:///modules/profile/node-two/old-certificate.pem',
 }
 
 ca_trust::pem::anchor { 'My Company\'s Internal CA':
   source   => 'puppet:///modules/profile/organization-ca.pem',
   filename => 'org-ca',
+}
+
+$cert_data = @(EOT)
+----- BEGIN CERTIFICATE -----
+...blah blah blah, PEM encoded certificate here....
+----- END CERTIFICATE -----
+| EOT
+
+ca_trust::pem::anchor { 'Org-CA':
+  content => $cert_data,
 }
 ```
 
@@ -121,11 +130,16 @@ of `ca_trust::pem::anchor` resources to manage.
 ```
 ---
 # Node's hiera yaml.
-ca\_trust::pem::anchors::resources:
+ca_trust::pem::anchors::resources:
   org-ca: 
     source: puppet:///modules/profile/my-company-ca.pem
   expired-ca:
     ensure: absent
+  my-ca:
+    content: >
+      ----- BEGIN CERTIFICATE ------
+      .... cert data here .....
+      ----- END CERTIFICATE -----
 ```
 
 ## Facts <a name="facts"/> ##
@@ -155,4 +169,4 @@ functions flawlessly.  Be sure to run `bundle exec rake spec_clean` before going
 
 ## Changes ##
 
-See the [change log](CHANGELOG.md).
+See the [change log](CHANGELOG).

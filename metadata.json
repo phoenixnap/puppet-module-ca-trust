@@ -2,11 +2,11 @@
   "name": "phoenixnap-ca_trust",
   "version": "1.0.0",
   "author": "John Anderson <johna@phoenixnap.com>",
-  "summary": "Installs trusted PEM anchors into system bundle.",
+  "summary": "Installs trusted PEM anchors into the system bundle.",
   "license": "Apache-2.0",
   "source": "https://github.com/phoenixnap/puppet-ca_trust",
   "project_page": "https://github.com/phoenixnap/puppet-ca_trust",
-  "issues_url": "https://github.com/phoenixnap/puppet-ca_trust",
+  "issues_url": "https://github.com/phoenixnap/puppet-ca_trust/issues",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
@@ -50,7 +50,8 @@
     {
       "operatingsystem": "Ubuntu",
       "operatingsystemrelease": [
-        "16"
+        "16",
+        "18"
       ]
     },
     {
@@ -67,7 +68,7 @@
       "version_requirement": ">= 4.7.0 < 6.0.0"
     }
   ],
-  "pdk-version": "1.6.1",
+  "pdk-version": "1.7.0",
   "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
-  "template-ref": "1.6.1-0-g6b0d497"
+  "template-ref": "1.7.0-0-g57412ed"
 }

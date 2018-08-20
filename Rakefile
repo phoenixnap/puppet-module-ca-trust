@@ -2,7 +2,6 @@ require 'puppetlabs_spec_helper/rake_tasks'
 require 'puppet-syntax/tasks/puppet-syntax'
 require 'puppet_blacksmith/rake_tasks' if Bundler.rubygems.find_name('puppet-blacksmith').any?
 require 'github_changelog_generator/task' if Bundler.rubygems.find_name('github_changelog_generator').any?
-require 'beaker/tasks/quick_start' if Bundler.rubygems.find_name('beaker').any?
 
 def changelog_user
   return unless Rake.application.top_level_tasks.include? "changelog"

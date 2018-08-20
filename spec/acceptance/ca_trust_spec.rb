@@ -51,7 +51,7 @@ describe '::ca_trust' do
       end
 
       describe 'ca_trust::pem::anchor' do
-        context 'installing a CA' do
+        context 'installing a CA from source' do
           let(:pp) do
             <<-EOT
             ca_trust::pem::anchor { 'org-ca':
@@ -96,6 +96,54 @@ describe '::ca_trust' do
           it 'removes the certificate from the Root CA bundle' do
             expect(on(agent, pkcs7_cmd).exit_code).to be_zero
             expect(on(agent, read_cmd).stdout).not_to contain('CN=SelfCA')
+          end
+        end
+
+        context 'install a CA from content' do
+          let(:pp) do
+            <<-EOT
+            $cert_data = @(EOT)
+            -----BEGIN CERTIFICATE-----
+            MIIDnTCCAoWgAwIBAgIJALTCic2uAK0qMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNV
+            BAYTAlVTMRAwDgYDVQQIDAdBcml6b25hMQ4wDAYDVQQHDAVUZW1wZTESMBAGA1UE
+            CgwJUHVwcGV0RGV2MQ8wDQYDVQQLDAZTZWxmQ0ExDzANBgNVBAMMBlNlbGZDQTAe
+            Fw0xODA4MDMwMDA0NTdaFw00NjA4MTYwMDA0NTdaMGUxCzAJBgNVBAYTAlVTMRAw
+            DgYDVQQIDAdBcml6b25hMQ4wDAYDVQQHDAVUZW1wZTESMBAGA1UECgwJUHVwcGV0
+            RGV2MQ8wDQYDVQQLDAZTZWxmQ0ExDzANBgNVBAMMBlNlbGZDQTCCASIwDQYJKoZI
+            hvcNAQEBBQADggEPADCCAQoCggEBAMe2vYtllnzKqOXqZHzzDxX2Wv6yids4Jjh6
+            x7O0JMUNKpzlzPAw+PoFXyP9B/Nw5AewzQKWtdv7q2LRzk1XxF6nBmkKN+Nee7ag
+            f/X15Rd7BnOVefEZnzwbS2EhxxC20jchzUW5vvXxS+V4y3Bn7Fs1U9jEXkRPv88s
+            iH0sCX+Aa4Ld2Jvktg98oblBTdaLQDG8LrcZ/9VO9M2HTvVhOimxrJ2ye1arJLTw
+            9FAc0VL5nswIWwbfBmTBByyU6Y8a2A1AGQDNrQNap+PukaJYZO9ZnmKsutf8zR4u
+            LZkY6wYO91rW9CcZWVgCU6rCsxLgcOVkWrmN2GiPztodyHI5GTMCAwEAAaNQME4w
+            HQYDVR0OBBYEFFc/mAvE125aT6Lo4EWvIr7nP3IyMB8GA1UdIwQYMBaAFFc/mAvE
+            125aT6Lo4EWvIr7nP3IyMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEB
+            AIujrqFXGknolgR5psWRoFVtvg9kYqBwTm6mHYht4YiX4S5bMjI9xGCk40sbGoBO
+            f+7gz38gNsvXJIjvHdORLjOrJ4B0ug+shayLZMN2z9pD2onumzk7S3PxWsuPDt5s
+            /jwfJfO5Zo58G2RP8rAX2/6otNPxjCKitMuj1fBDV7K6UpmsCnPOP3VqMImerH82
+            7CX8Ssfmy7VFM+4IV78oKjU8y5Z3PftO43X1VoV1rltXCKQKVUqJSu38h1KteaBb
+            OD1z9jW06LI7vzqW1RwEAv1NToC8OqQuqJrgwyILrzKxZutiRmD5ObuTZm+6Ysff
+            bUh7KOpx5DWzZl+wwubH01I=
+            -----END CERTIFICATE-----
+            | EOT
+            ca_trust::pem::anchor { 'org-ca':
+              content => $cert_data,
+            }
+            EOT
+          end
+
+          it 'applies idempotently without errors' do
+            expect(apply_manifest_on(agent, pp, catch_failures: true).exit_code).to be 2
+            expect(apply_manifest_on(agent, pp, catch_failures: true).exit_code).to be_zero
+          end
+
+          it 'installs the certificate file' do
+            expect(on(agent, 'ls -l ' + destination).exit_code).to be_zero
+          end
+
+          it 'adds the certificate to the Root CA bundle' do
+            expect(on(agent, pkcs7_cmd).exit_code).to be_zero
+            expect(on(agent, read_cmd).stdout).to contain('CN=SelfCA')
           end
         end
       end

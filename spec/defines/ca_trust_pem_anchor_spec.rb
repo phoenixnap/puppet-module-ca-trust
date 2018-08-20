@@ -14,20 +14,65 @@ describe 'ca_trust::pem::anchor' do
           '/usr/local/share/ca-certificates/my-ca.crt'
         end
       end
+      let(:contents) do
+        File.read(File.expand_path(File.join(File.dirname(__FILE__), '..', 'fixtures', 'files', 'selfCA.pem')))
+      end
 
       describe 'with ca_trust defaults' do
         context 'when present' do
-          it { is_expected.to compile }
-          it {
-            is_expected.to contain_file(installed_path)
-              .with('ensure' => 'present', 'source' => 'puppet:///modules/profile/my-ca.pem')
-              .that_notifies('Exec[Update CA Trust Bundles]')
-          }
+          context 'with source defined' do
+            it { is_expected.to compile }
+            it {
+              is_expected.to contain_file(installed_path)
+                .with('ensure' => 'present', 'source' => 'puppet:///modules/profile/my-ca.pem')
+                .that_notifies('Exec[Update CA Trust Bundles]')
+            }
+          end
 
-          context 'when source undefined' do
+          context 'with content defined' do
+            let(:params) { { 'content' => contents } }
+
+            it { is_expected.to compile }
+            it {
+              is_expected.to contain_file(installed_path)
+                .with('ensure' => 'present', 'content' => contents)
+                .that_notifies('Exec[Update CA Trust Bundles]')
+            }
+          end
+
+          context 'with content and source defined' do
+            let(:params) do
+              {
+                'content' => contents,
+                'source'  => 'puppet:///modules/profile/my-ca.pem',
+              }
+            end
+
+            it { is_expected.to compile }
+            it {
+              is_expected.to contain_file(installed_path)
+                .with('ensure' => 'present', 'content' => contents, 'source' => nil)
+                .that_notifies('Exec[Update CA Trust Bundles]')
+            }
+          end
+
+          context 'when source and contents undefined' do
             let(:params) { {} }
 
-            it { is_expected.to raise_error(Puppet::Error, %r{.*Source is required.*}) }
+            it { is_expected.to raise_error(Puppet::Error, %r{.*Source or content is required.*}) }
+          end
+
+          context 'when filename ends in extension' do
+            let(:title) do
+              case facts[:os]['family']
+              when 'RedHat'
+                'my-ca.pem'
+              when 'Debian'
+                'my-ca.crt'
+              end
+            end
+
+            it { is_expected.to raise_error(Puppet::Error) }
           end
         end
 
@@ -43,7 +88,7 @@ describe 'ca_trust::pem::anchor' do
               .that_notifies('Exec[Reset CA Trust Bundles]')
           }
 
-          context 'when source undefined' do
+          context 'when source and content undefined' do
             let(:params) { { 'ensure' => 'absent' } }
 
             it { is_expected.to compile }
