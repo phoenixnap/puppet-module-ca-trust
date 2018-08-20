@@ -48,6 +48,7 @@ acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   image: centos:7
   except: 
     - tags
+    - /^master$/
   tags:
     - nested
   before_script:
