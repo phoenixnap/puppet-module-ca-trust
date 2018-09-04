@@ -108,4 +108,4 @@ HOSTS:
 CONFIG:
   nfs_server: none
   consoleport: 443
-#  docker_preserve_image: true
+  docker_preserve_image: true

@@ -1,3 +1,23 @@
+# RELEASE 1.1.0 #
+
+## Summary ##
+
+The planned `list certs in bundle` task has been replaced with the `bundled_authorities` fact.  The idea to use a Puppet Task to do this was not a very good one.  Facts lend themselves to this sort of thing much better than tasks. Since this would have been a read-only operation anyway, I decided that task was not the way to go to do this.
+
+The release of the task to list certs was planned to be the 1.1.0 release, so since that implementation has been scrubbed, I'll move forward with the 1.1.0 release being the introduction of the `bundled_authorities` fact.
+
+Implemented a task which forces a rebuild of the trust bundle.
+
+### Features ###
+
++ Implemented `bundled_authorities` fact.
++ Implemented `ca_trust::rebuild` task.
+
+### Bugfixes ###
+
++ Fixed the reference docuementation that mistakenly labeled the `trust_bundle` fact as `trusted_bundle`.
+
+
 # RELEASE 1.0.1 #
 
 ## Summary ##

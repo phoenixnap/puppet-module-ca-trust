@@ -10,6 +10,7 @@
     + [Legacy PEM Anchors](#pem-anchors)
     + [Anchors from Hiera](#hiera-config)
 + [Facts](#facts)
++ [Tasks](#tasks)
 + [Development](#dev)
 + [TODO](#todo)
 + [Changes](CHANGELOG)
@@ -147,6 +148,31 @@ ca_trust::pem::anchors::resources:
 The following facts are exposed.
 
 `trust_bundle` - On supported operating systems this fact resolves to the path of the system-wide trusted CA bundle.
+`bundled_authorities` - This fact exposes pertinent information for each certificate in the bundle. It returns a hash, keyed on fingerprint.
+
+e.g.
+
+```
+$:facts['bundled_authorities'] = {
+  b561ebeaa4dee4254b691a98a55747c234c7d971 => {
+    subject => "/C=SK/L=Bratislava/O=Disig a.s./CN=CA Disig Root R2",
+    issuer => "/C=SK/L=Bratislava/O=Disig a.s./CN=CA Disig Root R2",
+    not_before => "2012-07-19 09:15:30 UTC",
+    not_after => "2042-07-19 09:15:30 UTC"
+  },
+  ...,
+  e2b8294b5584ab6b58c290466cac3fb8398f8483 => {
+    subject => "/C=CN/O=China Financial Certification Authority/CN=CFCA EV ROOT",
+    issuer => "/C=CN/O=China Financial Certification Authority/CN=CFCA EV ROOT",
+    not_before => "2012-08-08 03:07:01 UTC",
+    not_after => "2029-12-31 03:07:01 UTC"
+  }
+```
+
+## Tasks <a name="tasks"/> ##
+
+`ca_trust::rebuild` - Rebuilds the system's CA trust bundle using the operating system's prescribed manner.  Note that this rebuild will
+                    include any ca_trust::pem::anchors already installed on the system.  This will not reset the bundle to system default.
 
 ## Development <a name="dev"/> ##
 
@@ -164,7 +190,6 @@ functions flawlessly.  Be sure to run `bundle exec rake spec_clean` before going
 ## TODO <a name="todo"/> ##
 
 + Right now, only PEM encoded certificate anchors are supported. Support for other types of anchors, as well as BEGIN TRUSTED certs should be added.
-+ Add a task which allow administrators to view the contents of their system CA bundles.
 + Eventually support should be added for Windows platforms, to install new CA's into the system or user Certificate databases.
 
 ## Changes ##

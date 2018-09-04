@@ -23,7 +23,11 @@
 * [ca\_trust::resources::anchors](#alias_anchors): Defines the standard for a hash of anchor resources.
 
 ## Fact Index ##
-* [trusted_bundle](#fact_trusted_bundle): Resolves to the absolute path of the system CA bundle.
+* [trust_bundle](#fact_trust_bundle): Resolves to the absolute path of the system CA bundle.
+* [bundled_authorities](#fact_bundled_authorities): Resolves to an array of certificate information for each authority in the bundle.
+
+## Task Index ##
+* [ca_trust::rebuild](#task_rebuild): Force a rebuild of the system's CA trust bundle.
 
 
 ## Public Classes ##
@@ -294,6 +298,30 @@ type Ca_trust::Resource::Anchors = Hash[String[1], Ca_trust::Resource::Anchor]
 
 ## Fact Index ##
 
-`Facts['trust_bundle']` - Resolves to the path of the systemwide CA trust PEM bundle.  
-                          On RedHat & deriviatives this file should be under /etc/pki/, 
-                          on Debian bases, it will be under /etc/ssl.
+`$::facts['trust_bundle']` <a name='fact_trust_bundle'/>
+
+Resolves to the path of the systemwide CA trust PEM bundle.  On RedHat & deriviatives this file should be under /etc/pki/, on Debian bases, it will be under /etc/ssl.
+
+`$::facts['bundled_authorities']` <a name='fact_bundled_authorities'/>
+
+Resolves to an array of hashes, with each containing the `subject`, `issuer, `not_before`, `not_after`, and `fingerprint` for each PEM in the root bundle.
+
+Example:
+```
+{
+  '93057a8815c64fce882ffa9116522878bc536417' => {
+    'subject'     => '/C=US/ST=Nowhere/L=Some City/O=Some Org/CN=someserver.somedomain',
+    'issuer'      => '/C=US/ST=SomeState/OU=SomeIssuer',
+    'not_before'  => '2011-05-05 09:37:37 UTC',
+    'not_after'   => '2030-12-31 09:37:37 UTC',
+  },
+  ...
+}
+```
+
+## Task Index ##
+
+`ca_trust::rebuild`: <a name="task_rebuild"/>
+
+Parameters: None
+Exit Code: 0 on success, other than 0 on errors.

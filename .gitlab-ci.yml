@@ -1,72 +1,51 @@
 ---
+variables:
+  RVM_RUBY_VERSION: 2.4.4
+  BASH_ENV: /etc/profile
+
 stages:
   - syntax
   - unit
   - acceptance
   - build
 
-cache:
-  paths:
-    - vendor/bundle
-
-before_script:
-  - bundle -v
-  - rm Gemfile.lock || true
-  - gem update --system
-  - gem --version
-  - bundle -v
-  - bundle install --without system_tests --path vendor/bundle --jobs $(nproc)
-
-syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop-Ruby 2.4.4-Puppet ~> 5.5:
+pdk validate:
   stage: syntax
   tags:
-    - docker
+    - pdk
   except:
     - tags
-  image: ruby:2.4.4
   script:
-    - bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
+    - pdk validate
   variables:
     PUPPET_GEM_VERSION: '~> 5.5'
 
-parallel_spec-Ruby 2.4.4-Puppet ~> 5.5:
+pdk test unit:
   stage: unit
   when: on_success
   except:
     - tags
-  image: ruby:2.4.4
   tags:
-    - docker
+    - pdk
   script:
-    - bundle exec rake parallel_spec
+    - pdk test unit
   variables:
     PUPPET_GEM_VERSION: '~> 5.5'
 
 acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   stage: acceptance
   when: on_success
-  image: centos:7
   except: 
     - tags
     - /^master$/
   tags:
-    - nested
-  before_script:
-    - yum install -y automake autoconf gcc gcc-g++ libffi-devel zlib-devel libxml2-devel openssl-devel docker ruby gpg which
-    - gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-    - curl -sSL https://get.rvm.io | bash -s stable
-    - usermod -a -G rvm root
-    - . /etc/profile.d/rvm.sh
-    - rvm install 2.4.4
+    - pdk
+  script:
     - rvm use 2.4.4
     - gem install bundle
-    - bundle -v
-    - rm Gemfile.lock || true
+    - rm -f Gemfile.lock
     - gem update --system
-    - gem --version
-    - bundle -v
-    - bundle install --path vendor/bundle --jobs $(nproc)
-  script:
+    - bundle install --jobs $(nproc)
     - bundle exec rake beaker:default
   variables:
     PUPPET_GEM_VERSION: '~> 5.5'
@@ -74,26 +53,15 @@ acceptance-Ruby 2.4.4-Puppet ~> 5.5:
 build:
   stage: build
   tags:
-    - docker
-  image: ruby:2.4.4
+    - pdk
   only:
     - tags
-  before_script:
-    - DEBIAN_RELEASE="$(grep 'VERSION=' /etc/os-release | sed 's@.*\s(\(.*\))"@\1@g')"
-    - DOWNLOAD="$(mktemp --suffix .deb)" && chmod 644 $DOWNLOAD
-    - curl -k -sSL -o $DOWNLOAD "http://apt.puppetlabs.com/puppet-release-${DEBIAN_RELEASE}.deb"
-    - apt-get install $DOWNLOAD
-    - apt-get update
-    - rm -f $DOWNLOAD
-    - bundle -v
-    - rm Gemfile.lock || true
-    - gem update --system
-    - gem --version
-    - bundle -v
-    - bundle install --without system_tests --path vendor/bundle --jobs $(nproc)
   script:
-    - PDK_VERSION=$(python -c "from json import load; f = open('metadata.json', 'r'); print load(f)['pdk-version']; f.close()")
-    - apt-get install --force-yes -y "pdk=${PDK_VERSION}.*"
+    - rvm use 2.4.4
+    - gem install bundle
+    - rm -f Gemfile.lock
+    - gem update --system
+    - bundle install --jobs $(nproc)
     - mkdir builds/
     - bundle exec rake module:bump_to_version[${CI_COMMIT_TAG}]
     - pdk build --target-dir=builds/
