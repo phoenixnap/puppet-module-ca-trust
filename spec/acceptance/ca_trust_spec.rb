@@ -37,8 +37,8 @@ describe '::ca_trust' do
       let(:read_cmd) { 'openssl pkcs7 -noout -print_certs -in ' + tmp_p7 }
       let(:pkcs7_cmd) { 'openssl crl2pkcs7 -nocrl -certfile ' + bundle + ' > ' + tmp_p7 }
 
-      context "on #{agent[:platform]}" do
-        let(:manifest) { "class { '::ca_trust': }" }
+      describe 'ca_trust' do
+        let(:manifest) { 'class { \'::ca_trust\': }' }
 
         it 'applies idempotently without errors' do
           apply_manifest_on(agent, manifest, catch_failures: true)
@@ -144,6 +144,68 @@ describe '::ca_trust' do
           it 'adds the certificate to the Root CA bundle' do
             expect(on(agent, pkcs7_cmd).exit_code).to be_zero
             expect(on(agent, read_cmd).stdout).to contain('CN=SelfCA')
+          end
+        end
+      end
+
+      describe 'facts' do
+        let(:custom_dir) { "#{agent[:distmoduledir]}/ca_trust/lib/facter/" }
+
+        describe 'trust_bundle' do
+          context 'when manifest' do
+            let(:pp) do
+              <<-EOT
+              notify { "${::facts['trust_bundle']}": }
+              EOT
+            end
+
+            it 'prints bundle location' do
+              expect(apply_manifest_on(agent, pp, catch_failures: true).stdout).to contain(bundle)
+            end
+          end
+
+          context 'when cli' do
+            it 'prints bundle location' do
+              expect(on(agent, "facter --custom-dir #{custom_dir} trust_bundle").stdout).to eq("#{bundle}\n")
+            end
+          end
+        end
+
+        describe 'bundled_authorities' do
+          context 'when manifest' do
+            let(:pp) do
+              <<-EOT
+              notify { "${::facts['bundled_authorities']}": }
+              EOT
+            end
+
+            it 'returns the bundled authorities hash' do
+              expect(apply_manifest_on(agent, pp, catch_failures: true).stdout).to match(%r{.*issuer.*})
+            end
+          end
+
+          context 'it prints the bundled authorities hash' do
+            it 'prints the bundled authorities hash' do
+              expect(on(agent, "facter --custom-dir #{custom_dir} bundled_authorities").stdout).to match(%r{.*issuer.*})
+            end
+          end
+        end
+      end
+
+      describe 'tasks/rebuild' do
+        context 'when agent has bolt' do
+          if agent[:platform] !~ %r{\A.*fedora.*\z}
+            it 'rebuilds the bundle' do
+              expect(on(agent, "rm #{bundle}").exit_code).to be_zero
+              expect(on(agent, "bolt task run ca_trust::rebuild --nodes `hostname` --modulepath #{agent[:distmoduledir]} --transport local --verbose").exit_code).to be_zero
+              expect(on(agent, "test -f #{bundle}").exit_code).to be_zero
+            end
+          else
+            context 'bolt is unsupported' do
+              it 'does nothing' do
+                true
+              end
+            end
           end
         end
       end
