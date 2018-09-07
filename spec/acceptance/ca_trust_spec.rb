@@ -193,18 +193,44 @@ describe '::ca_trust' do
       end
 
       describe 'tasks/rebuild' do
-        context 'when agent has bolt' do
-          if agent[:platform] !~ %r{\A.*fedora.*\z}
-            it 'rebuilds the bundle' do
-              expect(on(agent, "rm #{bundle}").exit_code).to be_zero
-              expect(on(agent, "bolt task run ca_trust::rebuild --nodes `hostname` --modulepath #{agent[:distmoduledir]} --transport local --verbose").exit_code).to be_zero
-              expect(on(agent, "test -f #{bundle}").exit_code).to be_zero
-            end
-          else
-            context 'bolt is unsupported' do
-              it 'does nothing' do
-                true
+        if agent[:platform] !~ %r{\A.*fedora.*\z}
+          context 'when agent has bolt' do
+            context 'when task succeeds' do
+              it 'rebuilds the bundle' do
+                expect(on(agent, "rm #{bundle}").exit_code).to be_zero
+                result = on(agent, "bolt task run ca_trust::rebuild --nodes `hostname` --modulepath #{agent[:distmoduledir]} --transport local --verbose")
+                expect(result.exit_code).to be_zero
+                expect(result.stderr).to contain('success')
+                expect(on(agent, "test -f #{bundle}").exit_code).to be_zero
               end
+            end
+
+            context 'when task fails' do
+              # Test for Issue-7
+              before :each do
+                on(agent, 'chmod -x /opt/puppetlabs/puppet/bin/facter')
+              end
+
+              after :each do
+                on(agent, 'chmod +x /opt/puppetlabs/puppet/bin/facter')
+              end
+
+              it 'prints error on stderr' do
+                result = on(
+                  agent,
+                  "bolt task run ca_trust::rebuild --nodes `hostname` --modulepath #{agent[:distmoduledir]} --transport local --verbose",
+                  acceptable_exit_codes: [0, 1, 2, 256],
+                )
+                expect(have_e).to be_truthy
+                expect(result.exit_code).not_to be_zero
+                expect(result.stderr).to contain('failure')
+              end
+            end
+          end
+        else
+          context 'bolt is unsupported' do
+            it 'does nothing' do
+              true
             end
           end
         end
