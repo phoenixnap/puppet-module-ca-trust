@@ -21,7 +21,7 @@ Facter.add('bundled_authorities') do
         next unless line =~ %r{^\s*-{5}\s?END CERTIFICATE\s?-{5}\s*$}
         begin
           pem << OpenSSL::X509::Certificate.new(buffer)
-        rescue
+        rescue OpenSSL::OpenSSLError => e
           Puppet.error("Failure to parse certificate authority: #{e.message}")
           next
         ensure

@@ -66,28 +66,26 @@ def rebuild_debian
   raise(Puppet::Error, "Invocation of 'update-ca-certificates --fresh' failed: #{stderr}") unless status.exitstatus.zero?
 end
 
-begin
-  run_platform
-  response = { 'status' => 'success' }
-rescue Puppet::Error => e
-  response = {
+def exc_to_error(msg, e)
+  {
     'status' => 'error',
     '_error' => {
-      'msg'     => 'Command failed.',
-      'kind'    => 'Puppet/Error',
-      'details' => e.message,
-    },
-  }
-rescue StandardError => e
-  response = {
-    'status' => 'error',
-    '_error' => {
-      'msg'     => 'Unexpected error.',
+      'msg'     => msg,
       'kind'    => e.class.name.gsub('::', '/'),
       'details' => e.message,
     },
   }
-ensure
-  STDOUT.write(response.to_json)
-  exit((response.key?('_error') ? false : true))
 end
+
+begin
+  run_platform
+rescue Puppet::Error => e
+  STDERR.write(exc_to_error('Command failed.', e).to_json)
+  exit(1)
+rescue StandardError => e
+  STDERR.write(exc_to_error('Unexpected error.', e).to_json)
+  exit(1)
+end
+
+STDOUT.write({ 'status' => 'success' }.to_json)
+exit(0)
