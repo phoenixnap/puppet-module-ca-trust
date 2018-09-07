@@ -1,3 +1,15 @@
+# RELEASE 1.1.1 #
+
+## Summary ##
+
+Fixed a few minor bugs. 
+
+### Bugfixes ###
+
++ Fixed [issues-5](https://github.com/phoenixnap/puppet-ca_trust/issues/7)
++ Fixed [issues-7](https://github.com/phoenixnap/puppet-ca_trust/issues/5)
+
+
 # RELEASE 1.1.0 #
 
 ## Summary ##
