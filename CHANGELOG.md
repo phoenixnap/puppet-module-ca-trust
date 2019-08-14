@@ -1,3 +1,15 @@
+# RELEASE 1.1.2 #
+
+## Summary ##
+
++ Updated module to utilize PDK version 1.12.0 from 1.10.0.
++ Added syntax, unit, and acceptance tests for Puppet 6.5.
++ Fixed puppet requirement tags. Was >= 4.7, when should have been >= 5.5.
++ Updated Fedora acceptance testing from 26 to 29.
+  + Support for Fedora <= 27 has been removed.
+  + Fedora 30 repo is not yet available at yum.puppetlabs.com.
+
+
 # RELEASE 1.1.1 #
 
 ## Summary ##

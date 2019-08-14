@@ -71,7 +71,7 @@ describe '::ca_trust' do
 
           it 'adds the certificate to the Root CA bundle' do
             expect(on(agent, pkcs7_cmd).exit_code).to be_zero
-            expect(on(agent, read_cmd).stdout).to contain('CN=SelfCA')
+            expect(on(agent, read_cmd).stdout).to match(%r{^.*CN\s?=\s?SelfCA.*$})
           end
         end
 
@@ -95,7 +95,7 @@ describe '::ca_trust' do
 
           it 'removes the certificate from the Root CA bundle' do
             expect(on(agent, pkcs7_cmd).exit_code).to be_zero
-            expect(on(agent, read_cmd).stdout).not_to contain('CN=SelfCA')
+            expect(on(agent, read_cmd).stdout).not_to match(%r{^.*CN\s?=\s?SelfCA.*$})
           end
         end
 
@@ -143,7 +143,7 @@ describe '::ca_trust' do
 
           it 'adds the certificate to the Root CA bundle' do
             expect(on(agent, pkcs7_cmd).exit_code).to be_zero
-            expect(on(agent, read_cmd).stdout).to contain('CN=SelfCA')
+            expect(on(agent, read_cmd).stdout).to match(%r{^.*CN\s?=\s?SelfCA.*$})
           end
         end
       end
@@ -200,7 +200,6 @@ describe '::ca_trust' do
                 expect(on(agent, "rm #{bundle}").exit_code).to be_zero
                 result = on(agent, "bolt task run ca_trust::rebuild --nodes `hostname` --modulepath #{agent[:distmoduledir]} --transport local --verbose")
                 expect(result.exit_code).to be_zero
-                expect(result.stderr).to contain('success')
                 expect(on(agent, "test -f #{bundle}").exit_code).to be_zero
               end
             end
@@ -223,7 +222,6 @@ describe '::ca_trust' do
                 )
                 expect(have_e).to be_truthy
                 expect(result.exit_code).not_to be_zero
-                expect(result.stderr).to contain('failure')
               end
             end
           end
