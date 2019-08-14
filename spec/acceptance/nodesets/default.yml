@@ -92,14 +92,14 @@ HOSTS:
       - echo LANG=en_US.UTF-8 > /etc/default/locale
     roles:
       - agent
-  fedora26-64-1:
+  fedora29-64-1:
     type: aio
     hypervisor: docker
     docker_cmd:
       - "/sbin/init"
-    image: fedora:26
-    platform: fedora-26-x86_64
-    packaging_platform: fedora-26-x86_64
+    image: fedora:29
+    platform: fedora-29-x86_64
+    packaging_platform: fedora-29-x86_64
     docker_image_commands:
       - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
       - dnf install -y crontabs initscripts iproute openssl tar wget which
