@@ -29,6 +29,7 @@ group :system_tests do
   gem 'beaker-puppet_install_helper'
 end
 
+
 group :development do
   gem "fast_gettext", '1.1.0',                                   require: false if Gem::Version.new(RUBY_VERSION.dup) < Gem::Version.new('2.1.0')
   gem "fast_gettext",                                            require: false if Gem::Version.new(RUBY_VERSION.dup) >= Gem::Version.new('2.1.0')
