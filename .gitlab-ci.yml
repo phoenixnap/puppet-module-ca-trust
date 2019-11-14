@@ -3,6 +3,7 @@ stages:
   - syntax
   - unit
   - acceptance
+  - build
 
 cache:
   paths:
