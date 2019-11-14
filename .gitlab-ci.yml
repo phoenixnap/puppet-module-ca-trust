@@ -2,6 +2,7 @@
 stages:
   - syntax
   - unit
+  - acceptance
 
 cache:
   paths:
