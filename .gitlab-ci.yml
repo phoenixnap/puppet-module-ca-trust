@@ -9,37 +9,26 @@ cache:
   paths:
     - vendor/bundle
 
-before_script:
-  - bundle -v
-  - rm Gemfile.lock || true
-  - gem update --system $RUBYGEMS_VERSION
-  - gem --version
-  - bundle -v
-  - bundle install --without system_tests --path vendor/bundle --jobs $(nproc)
-
-syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop-Ruby 2.5.3-Puppet ~> 6:
+validate:
   stage: syntax
-  image: ruby:2.5.3
+  tags:
+    - pdk
   script:
-    - bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
-  variables:
-    PUPPET_GEM_VERSION: '~> 6'
+    - pdk validate --format=text:stdout --parallel --puppet-version=5.5
+    - pdk validate --format=text:stdout --parallel --puppet-version=6.5
+    - pdk validate --format=text:stdout --parallel --pe-version=2018.1
+    - pdk validate --format=text:stdout --parallel --pe-version=2019.1
 
-parallel_spec-Ruby 2.5.3-Puppet ~> 6:
+test_unit:
   stage: unit
-  image: ruby:2.5.3
+  tags:
+    - pdk
+  when: on_success
   script:
-    - bundle exec rake parallel_spec
-  variables:
-    PUPPET_GEM_VERSION: '~> 6'
-
-parallel_spec-Ruby 2.4.5-Puppet ~> 5:
-  stage: unit
-  image: ruby:2.4.5
-  script:
-    - bundle exec rake parallel_spec
-  variables:
-    PUPPET_GEM_VERSION: '~> 5'
+    - pdk test unit --format=text:stdout --puppet-version=5.5
+    - pdk test unit --format=text:stdout --puppet-version=6.5
+    - pdk test unit --format=text:stdout --pe-version=2018.1
+    - pdk test unit --format=text:stdout --pe-version=2019.1
 
 acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   stage: acceptance
@@ -50,17 +39,20 @@ acceptance-Ruby 2.4.4-Puppet ~> 5.5:
   tags:
     - pdk
   script:
-    - rvm use 2.4.4
-    - gem install bundle
     - rm -f Gemfile.lock
+    - . /etc/profile
+    - rvm use 2.4.4
     - gem update --system
-    - bundle install --jobs $(nproc)
+    - bundle install --path vendor/bundle --jobs $(nproc)
     - bundle exec rake beaker:default
   variables:
     PUPPET_GEM_VERSION: '~> 5'
     PDK_PUPPET_VERSION: '5'
+  cache:
+    paths:
+      - vendor/bundle
 
-acceptance-Ruby 2.4.4-Puppet ~> 6.5:
+acceptance-Ruby 2.5.3-Puppet ~> 6.5:
   stage: acceptance
   when: on_success
   except:
@@ -69,15 +61,18 @@ acceptance-Ruby 2.4.4-Puppet ~> 6.5:
   tags:
     - pdk
   script:
-    - rvm use 2.5.3
-    - gem install bundle
     - rm -f Gemfile.lock
+    - . /etc/profile
+    - rvm use 2.5.3
     - gem update --system
-    - bundle install --jobs $(nproc)
+    - bundle install --path vendor/bundle --jobs $(nproc)
     - bundle exec rake beaker:default
   variables:
     PUPPET_GEM_VERSION: '~> 6'
     PDK_PUPPET_VERSION: '6'
+  cache:
+    paths:
+      - vendor/bundle
 
 build:
   stage: build
@@ -86,17 +81,20 @@ build:
   only:
     - tags
   script:
-    - rvm use 2.4.4
-    - gem install bundle
     - rm -f Gemfile.lock
+    - . /etc/profile
+    - rvm use 2.4.4
     - gem update --system
-    - bundle install --jobs $(nproc)
+    - bundle install --path vendor/bundle --jobs $(nproc)
     - mkdir builds/
     - bundle exec rake module:bump_to_version[${CI_COMMIT_TAG}]
     - pdk build --target-dir=builds/
   variables:
-    PDK_PUPPET_VERSION: '5.5'
-    PUPPET_GEM_VERSION: '~> 5.5'
+    PDK_PUPPET_VERSION: '5'
+    PUPPET_GEM_VERSION: '~> 5'
+  cache:
+    paths:
+      - vendor/bundle
   artifacts:
     paths:
       - builds/phoenixnap-ca_trust*
