@@ -1,3 +1,10 @@
+# RELEASE 1.1.3 #
+
+## Summary ##
+
++ Updated module to utilize PDK version 1.14.1 from 1.12.0
++ Added Syntax and Unit testing for PE 2018.1, and 2019.1
+
 # RELEASE 1.1.2 #
 
 ## Summary ##

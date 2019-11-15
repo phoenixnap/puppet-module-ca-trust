@@ -189,7 +189,9 @@ functions flawlessly.  Be sure to run `bundle exec rake spec_clean` before going
 
 ## TODO <a name="todo"/> ##
 
-+ Right now, only PEM encoded certificate anchors are supported. Support for other types of anchors, as well as BEGIN TRUSTED certs should be added.
++ Add support for Fedora 30 & 31.
+  + Move Fedora acceptance testing from Fedora 29 to Fedora 31.
++ Add support for CentOS 8.
 + Eventually support should be added for Windows platforms, to install new CA's into the system or user Certificate databases.
 
 ## Changes ##
