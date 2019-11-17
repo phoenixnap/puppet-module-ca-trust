@@ -10,12 +10,21 @@ class ca_trust::params {
     'RedHat':  {
 
       if $::facts['os']['name'] == 'Fedora' {
-        if versioncmp('25', $::facts['os']['release']['major']) > 0 {
+        if versioncmp('27', $::facts['os']['release']['major']) > 0 {
           fail('Fedora <= 25 is not supported by this module.')
         }
       } else {
         if versioncmp('6', $::facts['os']['release']['major']) > 0 {
           fail("${::facts['os']['name']} <= 6 is not supported by this module.")
+        }
+        # Add deprication warning for CentOS 6.x EOL
+        if $::facts['os']['release']['major'] == '6' {
+          warning(
+            [
+              'Deprication:  CentOS 6 will reach end of life in November, 2020.',
+              'This module will no longer test for CentOS 6 support.'
+            ].join('  ')
+          )
         }
       }
 
@@ -37,6 +46,16 @@ class ca_trust::params {
       } else {
         if versioncmp('8', $::facts['os']['release']['major']) > 0 {
           fail("${::facts['os']['name']} <= 8 is not supported by this module.")
+        }
+
+        # Add deprication warning for Debian 8 EOL
+        if $::facts['os']['release']['major'] == '8' {
+          warning(
+            [
+              'Deprication: Debian 8 will reach end of long term support in July, 2020.',
+              'This module will no longer test for Debian 8 support.'
+            ].join('  ')
+          )
         }
       }
       $trust_dir = '/usr/local/share/ca-certificates'

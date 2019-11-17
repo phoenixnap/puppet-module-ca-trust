@@ -21,9 +21,9 @@ group :test do
 end
 
 group :system_tests do
-  gem 'beaker', '~> 4.0.0'
-  gem 'beaker-puppet', '~> 1.1.0'
-  gem 'beaker-pe', '~> 2.0.0'
+  gem 'beaker', '~> 4.14.0'
+  gem 'beaker-puppet'
+  gem 'beaker-pe'
   gem 'beaker-docker'
   gem 'beaker-rspec'
   gem 'beaker-puppet_install_helper'

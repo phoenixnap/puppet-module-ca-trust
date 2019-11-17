@@ -27,6 +27,12 @@ Manage CA Trust anchors within the ca-certificates framework.
 + Debian & Derivatives >= 8.x
 + Fedora >= 25
 
+Note:  RedHat 6, and deriviates, alongside Debian 8 are now depricated.  The EOL of these products is less than
+a year away.  Support for these products will be removed when they reach end of life.
+
+CentOS 8 and Ubuntu 20 do not yet undergo acceptance testing.  All other testing applies, but beaker is not yet
+ready to support these platforms.
+
 ## Module Description <a name="descr" /> ##
 
 The ca\_trust module is for managing additions to the root CA bundle supplied by OS vendors. Used by applications
@@ -189,9 +195,7 @@ functions flawlessly.  Be sure to run `bundle exec rake spec_clean` before going
 
 ## TODO <a name="todo"/> ##
 
-+ Add support for Fedora 30 & 31.
-  + Move Fedora acceptance testing from Fedora 29 to Fedora 31.
-+ Add support for CentOS 8.
++ When beaker is ready to support CentOS 8 and Ubuntu 20, add them to nodesets.
 + Eventually support should be added for Windows platforms, to install new CA's into the system or user Certificate databases.
 
 ## Changes ##

@@ -1,3 +1,16 @@
+# RELEASE 1.1.4 #
+
+## Summary ##
+
++ Deprication Warning - These distributions are nearing their end of support, and are now marked for deprication.
+  + EL 6
+  + Debian 8
++ Added testing for platforms.
+  + EL 8
+  + Debian 10
++ Support removal
+  + Fedora < 28
+
 # RELEASE 1.1.3 #
 
 ## Summary ##
