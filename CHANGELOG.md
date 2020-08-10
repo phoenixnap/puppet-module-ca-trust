@@ -1,3 +1,8 @@
+# RELEASE 1.1.5 #
+
+* Deprication Warning - Puppet 5.5 testing and support has been marked for deprication and will be removed in a future release.
+# Updated for PDK 1.18.1
+
 # RELEASE 1.1.4 #
 
 ## Summary ##
