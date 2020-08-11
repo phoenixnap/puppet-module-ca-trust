@@ -69,7 +69,7 @@ build:
     - rm -f Gemfile.lock
     - . /etc/profile
     - rvm use 2.5.8
-    - bundle install -path vendor/bundle jobs $(nproc)
+    - bundle install --path vendor/bundle --jobs $(nproc)
     - mkdir builds/
     - bundle exec rake module:bump_to_version[${CI_COMMIT_TAG}]
     - pdk build --target-dir=builds/
