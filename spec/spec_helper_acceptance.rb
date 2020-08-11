@@ -4,7 +4,7 @@ require 'beaker-pe'
 require 'beaker-rspec'
 
 agent_version = ENV['BEAKER_agent_version'] || 'latest'
-collection = ENV['BEAKER_collection'] || 'puppet5'
+collection = ENV['BEAKER_collection'] || 'puppet6'
 agent_yum_url = ENV['BEAKER_yum_url'] || 'http://yum.puppetlabs.com'
 agent_apt_url = ENV['BEAKER_apt_url'] || 'http://apt.puppetlabs.com'
 opts = {

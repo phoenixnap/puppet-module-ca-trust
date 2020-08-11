@@ -18,15 +18,8 @@ describe '::ca_trust' do
       end
       let(:bundle) do
         case agent[:platform]
-        when %r{(^el-7|fedora).*$}
+        when %r{(^el|fedora).*$}
           '/etc/pki/tls/certs/ca-bundle.crt'
-        when %r{^el-6.*$}
-          # For some reason, on RHEL 6 /etc/pki/tls/certs/ca-bundle.crt is static and is not
-          # a symlink to /etc/pki/ca_trust/extracted/pem/tls-ca-bundle.crt.
-          # For now, I'm going to assume this is some kind of oversight, as I'm fairly certain
-          # any apps would be pointing to the main bundle in certs, and not the bundle in extracted.
-          # On RHEL 7, the tls/certs/ca-bundle is a symlink to extracted, as I think it should be.
-          '/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
         when %r{(^deb|ubuntu).*$}
           '/etc/ssl/certs/ca-certificates.crt'
         else
@@ -198,7 +191,7 @@ describe '::ca_trust' do
             context 'when task succeeds' do
               it 'rebuilds the bundle' do
                 expect(on(agent, "rm #{bundle}").exit_code).to be_zero
-                result = on(agent, "bolt task run ca_trust::rebuild --nodes `hostname` --modulepath #{agent[:distmoduledir]} --transport local --verbose")
+                result = on(agent, "bolt task run ca_trust::rebuild --target `hostname` --modulepath #{agent[:distmoduledir]} --transport local --verbose")
                 expect(result.exit_code).to be_zero
                 expect(on(agent, "test -f #{bundle}").exit_code).to be_zero
               end

@@ -1,7 +1,15 @@
 # RELEASE 1.1.5 #
 
-* Deprication Warning - Puppet 5.5 testing and support has been marked for deprication and will be removed in a future release.
-# Updated for PDK 1.18.1
++ Removal Warning - Testing and Support has been removed for:
+  + EL6 & Derivatives
+  + Debian 8 & Derivatives
++ Deprication Warning:
+  + Testing and support for Puppet Versions < 5.5 and PE 2018.1 is marked for deprication and will be removed in a future release.
+  + Testing and support for Fedora will be removed if Beaker doesn't update their Fedora repository packages.
++ Added:
+  + Testing and support for Puppet 6.17 and PE 2019.8
+* Moved acceptance testing to Beaker 4.26 and Puppet 6.x to support Ubuntu 20.04
++ Updated for PDK 1.18.1
 
 # RELEASE 1.1.4 #
 
