@@ -54,8 +54,8 @@ acceptance-Ruby 2.5.8-Puppet ~> 6.17:
     - rvm use 2.5.8
     - gem update --system
     - bundle config set path 'vendor/bundle'
-    - bundle update --bundler
     - bundle install --jobs $(nproc)
+    - bundle update --bundler
     - bundle exec rake beaker:default
   cache:
     paths:
@@ -73,10 +73,11 @@ build:
     - rvm use 2.5.8
     - gem update --system
     - bundle config set path 'vendor/bundle'
-    - bundle update --bundler
     - bundle install --jobs $(nproc)
+    - bundle update --bundler
     - mkdir builds/
     - bundle exec rake module:bump_to_version[${CI_COMMIT_TAG}]
+    - rm -f Gemfile.lock
     - pdk build --target-dir=builds/
   variables:
     PDK_PUPPET_VERSION: '6.17'
