@@ -15,49 +15,18 @@ HOSTS:
     roles:
       - agent
       - default
-# Beaker support for CentOS 8 is not yet ready
-#  centos8-64-1:
-#    type: aio
-#    hypervisor: docker
-#    docker_cmd:
-#      - "/sbin/init"
-#    image: centos:8
-#    platform: el-8-x86_64
-#    packaging_platform: el-8-x86_64
-#   docker_image_commands:
-#      - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
-#      - systemctl mask getty@tty1.service
-#     - yum install -y crontabs initscripts openssl wget which 
-#   roles:
-#     - agent
-  centos6-64-1:
+  centos8-64-1:
     type: aio
     hypervisor: docker
     docker_cmd:
       - "/sbin/init"
-    image: centos:6
-    platform: el-6-x86_64
-    packaging_platform: el-6-x86_64
+    image: centos:8
+    platform: el-8-x86_64
+    packaging_platform: el-8-x86_64
     docker_image_commands:
       - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
-      - rm -rf /var/run/network/*
-      - yum install -y crontabs initscripts iproute openssl sysvinit-tools tar wget which
-      - rm /etc/init/tty.conf
-    roles:
-      - agent
-  debian8-64-1:
-    type: aio
-    hypervisor: docker
-    docker_cmd:
-      - "/sbin/init"
-    image: debian:8
-    platform: debian-8-amd64
-    packaging_platform: debian-8-amd64
-    docker_image_commands:
-      - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
-      - rm -f /usr/sbin/policy-rc.d
-      - systemctl mask getty@tty1.service getty-static.service
-      - apt-get update && apt-get install -y cron locales-all net-tools wget
+      - systemctl mask getty@tty1.service
+      - yum install -y crontabs initscripts openssl wget which
     roles:
       - agent
   debian9-64-1:
@@ -75,22 +44,21 @@ HOSTS:
       - apt-get update && apt-get install -y cron locales-all net-tools wget systemd-sysv
     roles:
       - agent
-# -- It appears as though the puppet Debian 10 apt repository isn't yet ready.  Bolt is misssing.
-#  debian10-64-1:
-#    type: aio
-#    hypervisor: docker
-#    docker_cmd:
-#      - "/sbin/init"
-#    image: debian:10
-#    platform: debian-10-amd64
-#    packaging_platform: debian-10-amd64
-#    docker_image_commands:
-#      - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
-#      - rm -f /usr/sbin/policy-rc.d
-#      - systemctl mask getty@tty1.service getty-static.service
-#      - apt-get update && apt-get install -y cron locales-all net-tools wget systemd-sysv
-#    roles:
-#      - agent
+  debian10-64-1:
+    type: aio
+    hypervisor: docker
+    docker_cmd:
+      - "/sbin/init"
+    image: debian:10
+    platform: debian-10-amd64
+    packaging_platform: debian-10-amd64
+    docker_image_commands:
+      - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
+      - rm -f /usr/sbin/policy-rc.d
+      - systemctl mask getty@tty1.service getty-static.service
+      - apt-get update && apt-get install -y cron locales-all net-tools wget systemd-sysv
+    roles:
+      - agent
   ubuntu1604-64-1:
     type: aio
     hypervisor: docker
@@ -115,6 +83,22 @@ HOSTS:
     image: ubuntu:18.04
     platform: ubuntu-18.04-amd64
     packaging_platform: ubuntu-18.04-amd64
+    docker_image_commands:
+      - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
+      - systemctl mask getty@tty1.service getty-static.service
+      - apt-get install -y net-tools wget locales apt-transport-https
+      - locale-gen en_US.UTF-8
+      - echo LANG=en_US.UTF-8 > /etc/default/locale
+    roles:
+      - agent
+  ubuntu2004-64-1:
+    type: aio
+    hypervisor: docker
+    docker_cmd:
+      - "/sbin/init"
+    image: ubuntu:20.04
+    platform: ubuntu-20.04-amd64
+    packaging_platform: ubuntu-20.04-amd64
     docker_image_commands:
       - ln -sf ../usr/share/zoneinfo/America/Phoenix /etc/localtime
       - systemctl mask getty@tty1.service getty-static.service

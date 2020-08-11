@@ -17,7 +17,7 @@ ruby_version_segments = Gem::Version.new(RUBY_VERSION.dup).segments
 minor_version = ruby_version_segments[0..1].join('.')
 
 group :system_tests do
-  gem 'beaker', '~> 4.14.0'
+  gem 'beaker', '~> 4.26.0'
   gem 'beaker-puppet'
   gem 'beaker-pe'
   gem 'beaker-docker'
