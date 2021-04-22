@@ -16,7 +16,7 @@ install_puppetlabs_release_repo(agents, collection, opts)
 agents.each do |agent|
   install_package(agent, 'puppet-agent', agent_version.eql?('latest') ? nil : agent_version)
   # No bolt packages yet for fedora, so skip bolt tests on that platform.
-  install_package(agent, 'puppet-bolt') unless agent[:platform] =~ %r{\A.*fedora.*\z}
+  install_package(agent, 'puppet-bolt') unless agent[:platform].match?(%r{\A.*fedora.*\z})
   install_puppet_module_via_pmt_on(agent, module_name: 'puppetlabs-stdlib', version: '4.25.1')
   on(agent, "mkdir -p #{agent[:distmoduledir]}/profile/files")
   scp_to(agent, './spec/fixtures/files/selfCA.pem', "#{agent[:distmoduledir]}/profile/files/")

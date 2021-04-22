@@ -1,16 +1,15 @@
 require 'spec_helper'
 
-describe 'trust_bundle fact' do
-  before :each do
-    if Facter.collection.respond_to?(:load)
-      Facter.collection.load(:trust_bundle)
-    else
-      Facter.collection.loader.load(:trust_bundle)
-    end
-  end
-
+describe Facter::Util::Fact.to_s do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
+      before :each do
+        Facter.clear
+        allow(Facter.fact(:os)).to receive(:value).and_return(facts[:os])
+      end
+      after :each do
+        Facter.clear_messages
+      end
       let(:facts) { facts }
 
       path = case facts[:os]['family']
@@ -23,15 +22,6 @@ describe 'trust_bundle fact' do
              when 'Debian'
                '/etc/ssl/certs/ca-certificates.crt'
              end
-
-      before :each do
-        allow(Facter.fact(:os)).to receive(:value).and_return(facts[:os])
-      end
-
-      after :each do
-        Facter.clear
-        Facter.clear_messages
-      end
 
       it "is expected to be #{path}" do
         expect(Facter.fact(:trust_bundle).value).to eq(path)

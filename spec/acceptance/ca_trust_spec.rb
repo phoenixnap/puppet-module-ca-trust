@@ -186,7 +186,7 @@ describe '::ca_trust' do
       end
 
       describe 'tasks/rebuild' do
-        if agent[:platform] !~ %r{\A.*fedora.*\z}
+        if !agent[:platform].match?(%r{\A.*fedora.*\z})
           context 'when agent has bolt' do
             context 'when task succeeds' do
               it 'rebuilds the bundle' do

@@ -18,10 +18,8 @@ validate:
     - /^master$/
   script:
     - pdk validate --format=text:stdout --parallel --puppet-version=5.5
-    - pdk validate --format=text:stdout --parallel --puppet-version=6.5
-    - pdk validate --format=text:stdout --parallel --puppet-version=6.17
+    - pdk validate --format=text:stdout --parallel --puppet-version=6.21
     - pdk validate --format=text:stdout --parallel --pe-version=2018.1
-    - pdk validate --format=text:stdout --parallel --pe-version=2019.1
     - pdk validate --format=text:stdout --parallel --pe-version=2019.8
 
 test_unit:
@@ -34,13 +32,11 @@ test_unit:
   when: on_success
   script:
     - pdk test unit --format=text:stdout --puppet-version=5.5
-    - pdk test unit --format=text:stdout --puppet-version=6.5
-    - pdk test unit --format=text:stdout --puppet-version=6.17
+    - pdk test unit --format=text:stdout --puppet-version=6.21
     - pdk test unit --format=text:stdout --pe-version=2018.1
-    - pdk test unit --format=text:stdout --pe-version=2019.1
     - pdk test unit --format=text:stdout --pe-version=2019.8
 
-acceptance-Ruby 2.5.8-Puppet ~> 6.17:
+acceptance-Ruby 2.5.8-Puppet ~> 6.21:
   stage: acceptance
   when: on_success
   except:
