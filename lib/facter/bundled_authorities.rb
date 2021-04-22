@@ -18,7 +18,7 @@ Facter.add('bundled_authorities') do
         end
         next if line.empty? || line == %r{^\s*$}
         buffer += line
-        next unless line =~ %r{^\s*-{5}\s?END CERTIFICATE\s?-{5}\s*$}
+        next unless line.match?(%r{^\s*-{5}\s?END CERTIFICATE\s?-{5}\s*$})
         begin
           pem << OpenSSL::X509::Certificate.new(buffer)
         rescue OpenSSL::OpenSSLError => e
