@@ -1,6 +1,36 @@
-# ca\_trust #
+<h1 align="center">
+  <br>
+  <a href="https://phoenixnap.com/bare-metal-cloud"><img src="https://user-images.githubusercontent.com/78744488/109779287-16da8600-7c06-11eb-81a1-97bf44983d33.png" alt="phoenixnap Bare Metal Cloud" width="300"></a>
+  <br>
+  ca_trust Puppet Module
+  <br>
+</h1>
 
-### Table of Contents ###
+<p align="center">
+This repository contains instructions on how to manage additions to the root CA bundle supplied by the OS vendors using the ca_trust Puppet module. 
+</p>
+
+<p align="center">
+  <a href="https://phoenixnap.com/bare-metal-cloud">Bare Metal Cloud</a> •
+  <a href="https://forge.puppet.com/modules/phoenixnap">phoenixNAP Puppet modules</a> •
+  <a href="https://developers.phoenixnap.com/">Developers Portal</a> •
+  <a href="https://developers.phoenixnap.com/docs/bmc/1/overview">API Documentation</a> •
+  <a href="http://phoenixnap.com/kb">Knowledge Base</a> •
+  <a href="https://developers.phoenixnap.com/support">Support</a>
+</p>
+
+## Creating a Bare Metal Cloud Account
+You need to have an account to use the ***ca_trust*** Puppet module with Bare Metal Cloud servers. 
+
+1. Go to the [Bare Metal Cloud signup page](https://support.phoenixnap.com/wap-jpost3/bmcSignup).
+2. Follow the prompts to set up your account.
+3. Use your credentials to [log in to the Bare Metal Cloud portal](https://bmc.phoenixnap.com).
+
+:arrow_forward: **Video tutorial:** [How to Create a Bare Metal Cloud Account](https://www.youtube.com/watch?v=RLRQOisEB-k)
+<br>
+:arrow_forward: **Video tutorial:** [Introduction to Bare Metal Cloud](https://www.youtube.com/watch?v=8TLsqgLDMN4)
+
+## Table of Contents ##
 
 + [Overview](#overview)
     + [Supported Platforms](#support)
@@ -21,34 +51,29 @@
 
 Manage CA Trust anchors within the ca-certificates framework.
 
-### Supported Platforms <a name="supported"/> ###
+### Supported Platforms <a name="support"/> ###
 
-+ RedHat & Derivatives >= 6.x
-+ Debian & Derivatives >= 8.x
++ RedHat and its derivatives >= 6.x
++ Debian and its derivatives >= 8.x
 + Fedora >= 25
 
-Note:  RedHat 6, and deriviates, alongside Debian 8 are now depricated.  The EOL of these products is less than
-a year away.  Support for these products will be removed when they reach end of life.
+:bulb: RedHat 6 and its derivatives, alongside Debian 8, are now deprecated. The EOL of these products is less than a year away. Support for these products will be removed when they reach end-of-life.
 
-CentOS 8 and Ubuntu 20 do not yet undergo acceptance testing.  All other testing applies, but beaker is not yet
-ready to support these platforms.
+:bulb: CentOS 8 and Ubuntu 20 did not undergo acceptance testing yet. All other testing applies, but Beaker is not yet ready to support these platforms.
 
 ## Module Description <a name="descr" /> ##
 
-The ca\_trust module is for managing additions to the root CA bundle supplied by OS vendors. Used by applications
-to establish trust, the root CA bundle is usually shipped containing only 3rd party or commercial CA certificates.
-Administrators are expected to add their own internal or self signed certificates to the OS vendor supplied bundles
-as needed.
+The *ca_trust* module is for managing additions to the root CA bundle supplied by OS vendors. Used by applications to establish trust, the root CA bundle is usually shipped containing only third-party or commercial CA certificates. Administrators are expected to add their own internal or self-signed certificates to the OS vendor supplied bundles as needed.
 
 The module currently supports adding PEM encoded CA anchors.
 
 ## Setup <a name="setup" /> ##
 
-To prepare supported operating systems to receive new trusted CA anchors.
+Prepare supported operating systems to receive new trusted CA anchors:
 
 `include ca_trust`
 
-To do the same, but include non-standard options.
+To do the same, but include non-standard options:
 
 ```
 class { '::ca_trust':
@@ -60,11 +85,11 @@ See [Reference](REFERENCE#ca_trust) for all options supported by the main class.
 
 ## Usage <a name="usage"/> ##
 
-On supported operating systems, the [Setup](#setup) process is entirely unnecessary, simply begin by
+The [Setup](#setup) process is unnecessary on supported operating systems. Simply begin by
 declaring any [ca\_trust::pem::anchors](#pem-anchors) necessary.
 
-If things need to be customized, then the `ca_trust` main class can be specified explicitly, like it is in the 
-[Setup](#setup) section.  Alternatively, the `ca_trust` main class may be customized via hiera.
+If things need to be customized, the `ca_trust` main class can be specified explicitly, like it is in the 
+[Setup](#setup) section. Alternatively, the `ca_trust` main class may be customized via Hiera.
 
 ```
 ---
@@ -82,10 +107,7 @@ include ca_trust
 
 ### Legacy PEM Anchors <a name="pem-anchors"/> ###
 
-To install new CA certificates into the operating system's trusted bundle, use the `ca_trust::pem::anchor` type.  When 
-specifying anchors, do not specify the filename extension (.crt, .pem, etc.).  Some platforms are picky about the extension
-used, so the module will choose the appropriate default for the platform.  For instance, Debian expects the certificates to end
-in .crt.
+To install new CA certificates into the operating system's trusted bundle, use the `ca_trust::pem::anchor` type. When specifying anchors, do not specify the filename extension such as *.crt*, *.pem*, etc. Some platforms are picky about the extension used, so the module will choose the appropriate default for the platform. For instance, Debian expects the certificates to end in *.crt*.
 
 ```
 ca_trust::pem::anchor { 'self-signed':
@@ -112,7 +134,7 @@ ca_trust::pem::anchor { 'Org-CA':
 }
 ```
 
-For convienience you may also specify any anchors you'd like when you declare the `ca_trust` class, if you 
+For convenience, you may also specify any anchors you'd like when you declare the `ca_trust` class, if you 
 are doing so explicitly.
 
 ```
@@ -129,9 +151,9 @@ class { '::ca_trust':
 }
 ```
 
-### Anchors from Hiera ###
+### Anchors from Hiera <a name="hiera-config"/> ###
 
-The class `ca_trust::pem::anchors` is included for hiera convienience.   With it, you may pass in a hash 
+The class `ca_trust::pem::anchors` is included for Hiera convenience. With it, you may pass in a hash 
 of `ca_trust::pem::anchor` resources to manage.
 
 ```
@@ -151,12 +173,13 @@ ca_trust::pem::anchors::resources:
 
 ## Facts <a name="facts"/> ##
 
-The following facts are exposed.
+The following facts are exposed:
 
-`trust_bundle` - On supported operating systems this fact resolves to the path of the system-wide trusted CA bundle.
-`bundled_authorities` - This fact exposes pertinent information for each certificate in the bundle. It returns a hash, keyed on fingerprint.
++ `trust_bundle` - On supported operating systems, this fact resolves to the path of the system-wide trusted CA bundle.
 
-e.g.
++ `bundled_authorities` - This fact exposes pertinent information for each certificate in the bundle. It returns a hash, keyed on fingerprint.
+
+Example:
 
 ```
 $:facts['bundled_authorities'] = {
@@ -177,8 +200,9 @@ $:facts['bundled_authorities'] = {
 
 ## Tasks <a name="tasks"/> ##
 
-`ca_trust::rebuild` - Rebuilds the system's CA trust bundle using the operating system's prescribed manner.  Note that this rebuild will
-                    include any ca_trust::pem::anchors already installed on the system.  This will not reset the bundle to system default.
+`ca_trust::rebuild` rebuilds the system's CA trust bundle using the operating system's prescribed manner.  
+
+Note that this rebuild will include any `ca_trust::pem::anchors` already installed on the system. This will not reset the bundle to system default.
 
 ## Development <a name="dev"/> ##
 
@@ -190,14 +214,49 @@ This module has been converted to use the [Puppet Development Kit](https://puppe
 ### Unit Testing ###
 `pdk test unit`
 
-For better output, or to debug a specific spec, the old standby `bundle exec rake spec_prep` and `bundle exec rspec <filename>` still
-functions flawlessly.  Be sure to run `bundle exec rake spec_clean` before going back to `pdk test unit` though.
+For better output, or to debug a specific spec, the old standby `bundle exec rake spec_prep` and `bundle exec rspec <filename>` still function flawlessly. Be sure to run `bundle exec rake spec_clean` before going back to `pdk test unit`, though.
 
 ## TODO <a name="todo"/> ##
 
-+ When beaker is ready to support CentOS 8 and Ubuntu 20, add them to nodesets.
-+ Eventually support should be added for Windows platforms, to install new CA's into the system or user Certificate databases.
++ When Beaker is ready to support CentOS 8 and Ubuntu 20, add them to nodesets.
++ Eventually support should be added for Windows platforms, to install new CAs into the system or user Certificate databases.
 
 ## Changes ##
 
 See the [change log](CHANGELOG).
+
+## Bare Metal Cloud Community
+Become part of the Bare Metal Cloud community to get updates on new features, help us improve the platform, and engage with developers and other users. 
+
+-   Follow [@phoenixNAP on Twitter](https://twitter.com/phoenixnap)
+-   Join the [official Slack channel](https://phoenixnap.slack.com)
+-   Sign up for our [Developers Monthly newsletter](https://phoenixnap.com/developers-monthly-newsletter)
+
+### Bare Metal Cloud Resources
+-	[Product page](https://phoenixnap.com/bare-metal-cloud)
+-	[Instance pricing](https://phoenixnap.com/bare-metal-cloud/instances)
+-	[YouTube tutorials](https://www.youtube.com/watch?v=8TLsqgLDMN4&list=PLWcrQnFWd54WwkHM0oPpR1BrAhxlsy1Rc&ab_channel=PhoenixNAPGlobalITServices)
+-	[Developers Portal](https://developers.phoenixnap.com)
+-	[Knowledge Base](https://phoenixnap.com/kb)
+-	[Blog](https:/phoenixnap.com/blog)
+
+### Documentation
+-	[API documentation](https://developers.phoenixnap.com/docs/bmc/1/overview)
+
+### Contact phoenixNAP
+Get in touch with us if you have questions or need help with Bare Metal Cloud. 
+
+<p align="left">
+  <a href="https://twitter.com/phoenixNAP">Twitter</a> •
+  <a href="https://www.facebook.com/phoenixnap">Facebook</a> •
+  <a href="https://www.linkedin.com/company/phoenix-nap">LinkedIn</a> •
+  <a href="https://www.instagram.com/phoenixnap">Instagram</a> •
+  <a href="https://www.youtube.com/user/PhoenixNAPdatacenter">YouTube</a> •
+  <a href="https://developers.phoenixnap.com/support">Email</a> 
+</p>
+
+<p align="center">
+  <br>
+  <a href="https://phoenixnap.com/bare-metal-cloud"><img src="https://user-images.githubusercontent.com/81640346/115243282-0c773b80-a123-11eb-9de7-59e3934a5712.jpg" alt="phoenixnap Bare Metal Cloud"></a>
+</p>
+
