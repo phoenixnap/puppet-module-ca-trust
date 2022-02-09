@@ -1,6 +1,7 @@
 require 'openssl'
 
 Facter.add('bundled_authorities') do
+  confine :kernel => 'Linux'
   setcode do
     bundle = Facter.value(:trust_bundle)
 
