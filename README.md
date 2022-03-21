@@ -14,7 +14,7 @@ This repository contains instructions on how to manage additions to the root CA 
   <a href="https://phoenixnap.com/bare-metal-cloud">Bare Metal Cloud</a> •
   <a href="https://forge.puppet.com/modules/phoenixnap">phoenixNAP Puppet modules</a> •
   <a href="https://developers.phoenixnap.com/">Developers Portal</a> •
-  <a href="https://developers.phoenixnap.com/docs/bmc/1/overview">API Documentation</a> •
+  <a href="https://developers.phoenixnap.com/apis">API Documentation</a> •
   <a href="http://phoenixnap.com/kb">Knowledge Base</a> •
   <a href="https://developers.phoenixnap.com/support">Support</a>
 </p>
@@ -241,7 +241,7 @@ Become part of the Bare Metal Cloud community to get updates on new features, he
 -	[Blog](https:/phoenixnap.com/blog)
 
 ### Documentation
--	[API documentation](https://developers.phoenixnap.com/docs/bmc/1/overview)
+-	[API documentation](https://developers.phoenixnap.com/apis)
 
 ### Contact phoenixNAP
 Get in touch with us if you have questions or need help with Bare Metal Cloud. 
