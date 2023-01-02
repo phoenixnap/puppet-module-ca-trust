@@ -1,4 +1,5 @@
 Facter.add('trust_bundle') do
+  confine :kernel => 'Linux'
   setcode do
     osfacts = Facter.value(:os)
     case osfacts['family']
